@@ -4,10 +4,9 @@ import com.ivy.core.persistence.dao.exchange.ExchangeRateDao
 import com.ivy.core.persistence.entity.exchange.ExchangeRateEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
-class ExchangeRateDaoFake: ExchangeRateDao {
+class ExchangeRateDaoFake : ExchangeRateDao {
 
     private val rates = MutableStateFlow<List<ExchangeRateEntity>>(emptyList())
 
@@ -16,9 +15,11 @@ class ExchangeRateDaoFake: ExchangeRateDao {
     }
 
     override fun findAllByBaseCurrency(baseCurrency: String): Flow<List<ExchangeRateEntity>> {
-        return rates
-            .map {
-                it.filter { it.baseCurrency.uppercase() == baseCurrency.uppercase() }
+        return rates.map {
+            it.filter {
+                it.baseCurrency.uppercase() == baseCurrency.uppercase()
             }
+        }
     }
+
 }

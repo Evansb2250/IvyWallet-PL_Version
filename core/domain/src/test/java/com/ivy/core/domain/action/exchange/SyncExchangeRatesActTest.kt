@@ -1,17 +1,15 @@
 package com.ivy.core.domain.action.exchange
 
 import assertk.assertThat
-import assertk.assertions.isNotNull
+import assertk.assertions.isGreaterThan
 import assertk.assertions.isNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class SyncExchangeRatesActTest {
-
-    private lateinit var syncExchangeRatesAct: SyncExchangeRatesAct
+    private lateinit var synchExchangeRatesAct: SyncExchangeRatesAct
     private lateinit var exchangeProviderFake: RemoteExchangeProviderFake
     private lateinit var exchangeRateDaoFake: ExchangeRateDaoFake
 
@@ -19,15 +17,15 @@ internal class SyncExchangeRatesActTest {
     fun setUp() {
         exchangeProviderFake = RemoteExchangeProviderFake()
         exchangeRateDaoFake = ExchangeRateDaoFake()
-        syncExchangeRatesAct = SyncExchangeRatesAct(
+        synchExchangeRatesAct = SyncExchangeRatesAct(
             exchangeProvider = exchangeProviderFake,
             exchangeRateDao = exchangeRateDaoFake
         )
     }
 
     @Test
-    fun `Test sync exchange rates, negative values ignored`() = runBlocking {
-        syncExchangeRatesAct("USD")
+    fun `Test sync exchange rates negative values ignored`() = runBlocking {
+        synchExchangeRatesAct("USD")
 
         val usdRates = exchangeRateDaoFake
             .findAllByBaseCurrency("USD")
@@ -38,16 +36,17 @@ internal class SyncExchangeRatesActTest {
     }
 
     @Test
-    fun `Test sync exchange rates, valid values saved`() = runBlocking<Unit> {
-        syncExchangeRatesAct("USD")
+    fun `Test sync exchange rates, valid values saved`() = runBlocking {
+        synchExchangeRatesAct("USD")
 
-        val usdRates = exchangeRateDaoFake
-            .findAllByBaseCurrency("USD")
-            .first { it.isNotEmpty() }
-        val eurRate = usdRates.find { it.currency == "EUR" }
-        val audRate = usdRates.find { it.currency == "AUD" }
+       val result = exchangeRateDaoFake.findAllByBaseCurrency("USD")
+           .first {
+               it.isNotEmpty()
+           }
 
-        assertThat(eurRate).isNotNull()
-        assertThat(audRate).isNotNull()
+        result.forEach {
+            assertThat(it.rate).isGreaterThan(0.00)
+        }
+
     }
 }
