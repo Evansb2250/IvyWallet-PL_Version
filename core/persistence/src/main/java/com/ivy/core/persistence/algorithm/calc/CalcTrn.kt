@@ -14,4 +14,18 @@ data class CalcTrn(
     val type: TransactionType,
     @ColumnInfo(name = "time")
     val time: Instant,
-)
+){
+  companion object {
+      fun createTransactionObject(
+          amount: Double = 2.00,
+          currency: String = "USD",
+          type: TransactionType=  TransactionType.Income,
+          time: Instant = Instant.now()
+      ): CalcTrn = CalcTrn(
+          amount = amount,
+          currency = currency,
+          type =  type,
+          time = time,
+      )
+  }
+}
