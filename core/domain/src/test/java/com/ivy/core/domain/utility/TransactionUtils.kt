@@ -44,12 +44,15 @@ fun transactionTimeBuilder(
 
 
 
-object TransactionTime{
-    fun getHour(hour: Int)
-            : Hour = Hour(hour)
+sealed class TransactionTime{
 
-    fun getMinute(minute: Int): Minute = Minute(minute)
-    data class Hour(val hour: Int) {
+    companion object{
+        fun getHour(hour: Int)
+                : Hour = Hour(hour)
+
+        fun getMinute(minute: Int): Minute = Minute(minute)
+    }
+   data class Hour(val hour: Int) {
         init {
             require(hour in 0..23) { "Hour must be between 0 and 23" }
         }

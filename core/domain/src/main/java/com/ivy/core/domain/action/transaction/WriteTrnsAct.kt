@@ -215,6 +215,7 @@ class WriteTrnsAct @Inject constructor(
             ),
             timeProvider = timeProvider,
         ).copy(sync = Syncing)
+
         val trnId = trn.id.toString()
         val tags = trn.tags.map {
             mapToTrnTagEntity(

@@ -20,12 +20,12 @@ data class CalcTrn(
           amount: Double = 2.00,
           currency: String = "USD",
           type: TransactionType=  TransactionType.Income,
-          time: Instant = Instant.now()
+          time: Instant?= null
       ): CalcTrn = CalcTrn(
           amount = amount,
           currency = currency,
           type =  type,
-          time = time,
+          time = time ?: Instant.now(),
       )
   }
 }
