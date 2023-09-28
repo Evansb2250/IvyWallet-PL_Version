@@ -16,14 +16,13 @@ import com.ivy.data.SyncState
  */
 
 class TransactionDaoFake : TransactionDao() {
-    val trnData = mutableListOf<TransactionEntity>()
-    val trnTags = mutableMapOf<String, TrnTagEntity>()
-    val attachments = mutableMapOf<String, AttachmentEntity>()
-    val trnMetadata = mutableMapOf<String, TrnMetadataEntity>()
+   private val trnData = mutableListOf<TransactionEntity>()
+   private val trnTags = mutableMapOf<String, TrnTagEntity>()
+   private val attachments = mutableMapOf<String, AttachmentEntity>()
+   private val trnMetadata = mutableMapOf<String, TrnMetadataEntity>()
 
     override suspend fun save(data: SaveTrnData) {
         val trnId: String = data.entity.id // the entity id
-
 
         trnData.add(data.entity) // save entity to fake memory storage
 
@@ -37,7 +36,6 @@ class TransactionDaoFake : TransactionDao() {
         //Delete Existing metadata key-values
         updateMetadataSyncByTrnId(trnId, sync = SyncState.Deleting)
         saveMetadata(data.metadata)
-
 
         super.save(data)
     }
@@ -80,7 +78,9 @@ class TransactionDaoFake : TransactionDao() {
     }
 
     override suspend fun updateMetadataSyncByTrnId(trnId: String, sync: SyncState) {
-        TODO("Not yet implemented")
+        trnMetadata[trnId] = trnMetadata[trnId]?.copy(
+            sync = sync
+        ) ?: return
     }
 
     override suspend fun saveMetadata(entity: List<TrnMetadataEntity>) {

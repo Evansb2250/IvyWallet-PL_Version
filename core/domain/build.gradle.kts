@@ -15,6 +15,8 @@ plugins {
 apply<com.ivy.buildsrc.IvyPlugin>()
 
 dependencies {
+    testImplementation(project(mapOf("path" to ":common:android-test")))
+    testImplementation(project(mapOf("path" to ":common:android-test")))
     Hilt()
     implementation(project(":common:main"))
     implementation(project(":core:persistence"))
