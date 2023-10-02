@@ -16,15 +16,15 @@ import com.ivy.data.SyncState
  */
 
 class TransactionDaoFake : TransactionDao() {
-   private val trnData = mutableListOf<TransactionEntity>()
-   private val trnTags = mutableMapOf<String, TrnTagEntity>()
-   private val attachments = mutableMapOf<String, AttachmentEntity>()
-   private val trnMetadata = mutableMapOf<String, TrnMetadataEntity>()
+    private val trnData = mutableMapOf<String, TransactionEntity>()
+    private val trnTags = mutableMapOf<String, TrnTagEntity>()
+    private val attachments = mutableMapOf<String, AttachmentEntity>()
+    private val trnMetadata = mutableMapOf<String, TrnMetadataEntity>()
 
     override suspend fun save(data: SaveTrnData) {
         val trnId: String = data.entity.id // the entity id
 
-        trnData.add(data.entity) // save entity to fake memory storage
+        trnData[data.entity.id] = data.entity // save entity to fake memory storage
 
         //remove tags from memory
         updateTrnTagsSyncByTrnId(trnId, sync = SyncState.Deleting)
@@ -41,7 +41,7 @@ class TransactionDaoFake : TransactionDao() {
     }
 
     override suspend fun saveTrnEntity(entity: TransactionEntity) {
-        TODO("Not yet implemented")
+        trnData[entity.id] = entity
     }
 
     override suspend fun updateTrnTagsSyncByTrnId(trnId: String, sync: SyncState) {
@@ -49,7 +49,7 @@ class TransactionDaoFake : TransactionDao() {
             sync = sync
         )
         if (updatedTrnTag != null) {
-            trnTags.set(trnId, updatedTrnTag)
+            trnTags[trnId] = updatedTrnTag
         }
     }
 
@@ -66,7 +66,7 @@ class TransactionDaoFake : TransactionDao() {
         val updatedAttachment = attachments[associatedId]?.copy(
             sync = sync
         )
-        if(updatedAttachment != null){
+        if (updatedAttachment != null) {
             attachments[associatedId] = updatedAttachment
         }
     }
@@ -90,18 +90,24 @@ class TransactionDaoFake : TransactionDao() {
     }
 
     override suspend fun findAllBlocking(): List<TransactionEntity> {
-        TODO("Not yet implemented")
+        return trnData.values.filter {
+            it.sync != SyncState.Deleting
+        }
     }
 
     override suspend fun findBySQL(query: SupportSQLiteQuery): List<TransactionEntity> {
-        TODO("Not yet implemented")
+        return emptyList()
     }
 
     override suspend fun findAccountIdAndTimeById(trnId: String): AccountIdAndTrnTime? {
-        TODO("Not yet implemented")
+        return null
     }
 
     override suspend fun updateTrnEntitySyncById(trnId: String, sync: SyncState) {
-        TODO("Not yet implemented")
+        val updatedTrnEntity = trnData[trnId]?.copy(
+            sync = sync,
+        ) ?: return
+
+        trnData[updatedTrnEntity.id] = updatedTrnEntity
     }
 }

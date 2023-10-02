@@ -1,15 +1,119 @@
 package com.ivy.core.domain.utility
 
 import com.ivy.core.persistence.algorithm.calc.CalcTrn
+import com.ivy.data.CurrencyCode
+import com.ivy.data.ItemIconId
+import com.ivy.data.Sync
+import com.ivy.data.SyncState
+import com.ivy.data.Value
+import com.ivy.data.account.Account
+import com.ivy.data.account.AccountState
+import com.ivy.data.attachment.Attachment
+import com.ivy.data.category.Category
+import com.ivy.data.category.CategoryState
+import com.ivy.data.category.CategoryType
+import com.ivy.data.tag.Tag
+import com.ivy.data.transaction.Transaction
+import com.ivy.data.transaction.TransactionType
+import com.ivy.data.transaction.TrnMetadata
+import com.ivy.data.transaction.TrnPurpose
+import com.ivy.data.transaction.TrnState
+import com.ivy.data.transaction.TrnTime
+import com.ivy.data.transaction.dummyTrnTimeActual
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
+import java.util.UUID
 
+fun createSync(): Sync = Sync(
+    state = SyncState.Synced,
+    lastUpdated = LocalDateTime.now()
+)
+fun createTrnMetadata(): TrnMetadata = TrnMetadata(
+    recurringRuleId = null,
+    loanId = null,
+    loanRecordId = null
+)
+fun createCategory(
+    id: UUID
+): Category = Category(
+    id,
+    name = "",
+    type = CategoryType.Income,
+    parentCategoryId = null,
+    color = 0,
+    icon = null,
+    orderNum = 0.0,
+    state = CategoryState.Archived,
+    sync = Sync(
+        state = SyncState.Synced,
+        lastUpdated = LocalDateTime.now()
+    )
+)
+fun createAccount(
+    id: UUID,
+    name: String = "",
+    currency: CurrencyCode = CurrencyCode(),
+    color: Int = 0,
+    icon: ItemIconId? = null,
+    excluded: Boolean = true,
+    folderId: UUID? = null,
+    orderNum: Double = 0.0,
+    state: AccountState = AccountState.Default,
+    sync: Sync = Sync(
+        state = SyncState.Synced,
+        lastUpdated = LocalDateTime.now(),
+    )
+): Account = Account(
+    id = id,
+    name = name,
+    currency = currency,
+    color = color,
+    icon = icon,
+    excluded = excluded,
+    folderId = folderId,
+    orderNum = orderNum,
+    state = state,
+    sync = sync
+)
+fun createTransaction(
+    id: UUID = UUID.randomUUID(),
+    account: Account = createAccount(id),
+    type: TransactionType = TransactionType.fromCode(1) ?: TransactionType.Income,
+    value: Value = Value(
+        amount = 10.0,
+        currency = "USD",
+    ),
+    category: Category? = createCategory(id),
+    time: TrnTime = dummyTrnTimeActual(),
+    title: String? = null,
+    description: String? = null,
+    state: TrnState = TrnState.Default,
+    purpose: TrnPurpose? = TrnPurpose.fromCode(1) ?: TrnPurpose.Fee,
+    tags: List<Tag> = emptyList(),
+    attachments: List<Attachment> = emptyList(),
+    metadata: TrnMetadata = createTrnMetadata(),
+    sync: Sync = createSync(),
+): Transaction = Transaction(
+    id = id,
+    account = account,
+    type = type,
+    value = value,
+    category = category,
+    time = time,
+    title = title,
+    description = description,
+    state = state,
+    purpose = purpose,
+    tags = tags,
+    attachments = attachments,
+    metadata = metadata,
+    sync = sync,
+)
 fun buildTransactionList(vararg transaction: CalcTrn): List<CalcTrn> {
     return transaction.toList()
 }
-
-
 fun transactionTimeBuilder(
     month: Months,
     day: Int,
@@ -41,18 +145,16 @@ fun transactionTimeBuilder(
         return Instant.now()
     }
 }
+sealed class TransactionTime {
 
-
-
-sealed class TransactionTime{
-
-    companion object{
+    companion object {
         fun getHour(hour: Int)
                 : Hour = Hour(hour)
 
         fun getMinute(minute: Int): Minute = Minute(minute)
     }
-   data class Hour(val hour: Int) {
+
+    data class Hour(val hour: Int) {
         init {
             require(hour in 0..23) { "Hour must be between 0 and 23" }
         }
@@ -64,7 +166,6 @@ sealed class TransactionTime{
         }
     }
 }
-
 
 
 private fun setValidDayRange(

@@ -45,6 +45,7 @@ class WriteAccountsActTest: IvyAndroidTest() {
         writeAccountsAct(Modify.save(accountToSave))
 
         val createdAccountFromDb = accountDao.findAllBlocking().first()
+
         assertThat(createdAccountFromDb)
             .transformToAccount()
             .isEqualTo(accountToSave)

@@ -11,7 +11,7 @@ class AccountCacheFakeDao : AccountCacheDao {
     val accountCache = mutableMapOf<String, AccountCacheEntity>()
     override fun findAccountCache(accountId: String): Flow<AccountCacheEntity?> {
       return flow {
-          accountCache[accountId]
+          emit(accountCache[accountId])
       }
     }
 
